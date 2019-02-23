@@ -50,7 +50,7 @@ function previewShow($e)
         $('body').find('#video-preview, #image-preview').remove();
 
         ipjs.visible = false;
-        ipjs.current = undefined;
+        ipjs.current = ipjs.lastSrc = undefined;
         ipjs.currentHeight = ipjs.currentWidth = 0;
 
         return false;
@@ -80,23 +80,26 @@ function previewShow($e)
 
     if(arrayContains(ipjs.lastExt, ipjs.extensions.images))
     { 
-        $img = new Image();
+        img = new Image(); img.orig = ipjs.lastSrc;
 
-        $($img).on('load', function()
+        $(img).on('load', function()
         {
             if(!ipjs.visible)
             {
-                $('body').prepend('<img id="image-preview" onload="getDimensions();" src="' + $img.src + '">');
+                if(this.orig == ipjs.lastSrc)
+                {
+                    $('body').prepend('<img id="image-preview" onload="getDimensions();" src="' + img.src + '">');
 
-                ipjs.current = $('body').find('#image-preview');
+                    ipjs.current = $('body').find('#image-preview');
 
-                ipjs.current.css(ipjs.css);
+                    ipjs.current.css(ipjs.css);
+                }
 
                 return true;
             }
         });
 
-        $img.src = ipjs.lastSrc;
+        img.src = ipjs.lastSrc;
     }
 
     if(arrayContains(ipjs.lastExt, ipjs.extensions.videos))
@@ -107,8 +110,8 @@ function previewShow($e)
 
         ipjs.current = $video;
 
+        $video.attr('data-orig', ipjs.lastSrc);
         $video.find('source').attr('src', ipjs.lastSrc);
-
         $video.css(ipjs.css);
 
         $video[0].load();
@@ -121,7 +124,7 @@ function waitForVideo($video)
 {
     function checkLoad()
     {
-        if(ipjs.current == undefined)
+        if(ipjs.current == undefined || $video.data('orig') != ipjs.lastSrc)
         {
             return false;
         }
@@ -229,6 +232,8 @@ $(document).on('mouseenter', '.preview', function(e)
         if(!ipjs.visible)
         {
             previewShow();
+        } else {
+            return true;
         }
       }, ipjs.hoverDelay
     );

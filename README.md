@@ -1,8 +1,8 @@
 # image.preview.js
-This plugin will display a preview of whatever image or video link is being hovered over.
+A simple jQuery plugin that adds hoverable image and video previews to links and other elements. 
 
 ## Requirements
-#### [jQuery](https://github.com/jquery/jquery)
+### [jQuery](https://github.com/jquery/jquery)
 
 ## Usage
 To use this plugin you need to add the `preview` class to any link or element you want to have display a preview. If you are using a simple `a` element then all you have to do is add the class and the plugin will fetch the URL automatically.
