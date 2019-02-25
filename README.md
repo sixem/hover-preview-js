@@ -34,14 +34,16 @@ $(document).ready(function()
 {
 	$(document).imagePreview({
 		elements : ['a.preview'],
-		hoverDelay : 250,
-		margin : 12,
+		hoverDelay : 175,
+		margin : 20,
 		css : {
-			'border' : '4px solid red'
+			'-webkit-box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
+			'-moz-box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
+			'box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)'
 		},
 		extensions : {
 			images : ['jpg', 'jpeg', 'png'],
-			videos : ['webm']
+			videos : ['webm', 'mp4']
 		}
 	});
 });
