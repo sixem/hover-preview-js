@@ -8,7 +8,9 @@
 
     ipjs.settings = $.extend({
       hoverDelay : 150,
-      margin : 4,
+      staticPreview : true,
+      windowMargin : 4,
+      triggerMargin : 24,
       elements : [],
       extensions : {
           images : ['jpg', 'jpeg', 'gif', 'png', 'ico', 'svg', 'bmp'],
@@ -16,14 +18,22 @@
       },
     }, ipjs.settings, options);
 
-    ipjs.settings.styles = {
-          'max-height' : 'calc(100% - ' + (ipjs.settings.margin * 2) + 'px)',
+    ipjs.store = {};
+
+    ipjs.requiredCSS = {
+          'max-height' : 'calc(100% - ' + (ipjs.settings.windowMargin * 2) + 'px)',
           'visibility' : 'hidden',
           'position' : 'fixed',
-          'top' : ipjs.settings.margin,
+          'top' : ipjs.settings.windowMargin,
           'left' : 0,
-          'z-index' : 4
+          'z-index' : 4,
+          'pointer-events' : 'none'
     };
+
+    function isStatic()
+    {
+      return !ipjs.settings.staticPreview && ipjs.settings.mouse != undefined ? false : true;
+    }
 
     function arrayContains(t, e)
     {
@@ -35,62 +45,92 @@
         $offsets = $t.offset();
 
         return {
-            'top' : $offsets.top - $(window).scrollTop(),
-            'left' : $offsets.left - $(window).scrollLeft(),
-            'offset' : $offsets
+            'top' : $offsets.top - ipjs.windowScrollTop,
+            'left' : $offsets.left - ipjs.windowScrollLeft,
+            'offset' : $offsets,
+            'margin' : $t.width() + ipjs.settings.triggerMargin,
         };
     }
 
-    function previewAdjust()
+    function getTopAdjustments($max, $top)
+    {
+      $perc = (($top / $max) * 100); $perc = $perc > 100 ? 100 : $perc;
+      $calc = (($max / 100) * $perc) - ((ipjs.store['adjustedHeight'] / 100) * $perc);
+
+      ipjs.current.css('max-height', $max - ($max - ipjs.store['adjustedHeight']) + 'px');
+
+      return $calc < ipjs.settings.windowMargin ? ipjs.settings.windowMargin : $calc;
+    }
+
+    function previewAdjust($e)
     {
         if(ipjs.current == undefined)
         {
             return false;
         }
 
-        $ww = $(window).width();
+        ipjs.windowScrollTop = $(window).scrollTop(); ipjs.windowScrollLeft = $(window).scrollLeft();
 
-        $offset = getElementPositions(ipjs.lastTrigger);
-
-        if(($ww / 2) > $ww - $offset['left'])
+        if(!isStatic())
         {
-            $pos = Math.floor($ww - $offset['left'] + 10);
+          if(ipjs.store['offset'] == undefined)
+          {
+            $offsets = ipjs.lastTrigger.offset();
+
+            ipjs.store['offset'] = {
+              'top' : ipjs.settings.mouse.pageY - ipjs.windowScrollTop,
+              'left' : ipjs.settings.mouse.pageX - ipjs.windowScrollLeft,
+              'margin' : ipjs.settings.triggerMargin
+            };
+          } else {
+            ipjs.store['offset']['left'] = ipjs.settings.mouse.pageX - ipjs.windowScrollLeft;
+          }
+        } else {
+          if(ipjs.store['offset'] == undefined)
+          {
+            ipjs.store['offset'] = getElementPositions(ipjs.lastTrigger);
+          }
+        }
+
+        if(ipjs.windowWidthH > ipjs.windowWidth - ipjs.store['offset']['left'])
+        {
+            $pos = Math.floor(ipjs.windowWidth - ipjs.store['offset']['left'] + ipjs.settings.triggerMargin);
 
             ipjs.current.css({
                 'left' : '',
                 'right' : $pos + 'px',
-                'max-width' : (($ww - $pos) - ipjs.settings.margin) + 'px'
+                'max-width' : ((ipjs.windowWidth - $pos) - ipjs.settings.windowMargin) + 'px'
             });
         } else {
-            $pos = Math.floor($offset['left'] + ipjs.lastTrigger.width() + 10);
+            $pos = Math.floor(ipjs.store['offset']['left'] + ipjs.store['offset']['margin']);
 
             ipjs.current.css({
                 'left' : $pos + 'px',
                 'right' : '',
-                'max-width' : (($ww - $pos) - ipjs.settings.margin) + 'px'
+                'max-width' : ((ipjs.windowWidth - $pos) - ipjs.settings.windowMargin) + 'px'
             });
         }
 
-        if(ipjs.current.height() < ipjs.currentHeight)
+        if(ipjs.store['currentTop'] == undefined)
         {
-            ipjs.currentHeight = ipjs.current.height();
+          $max = ipjs.windowHeight - (ipjs.settings.windowMargin * 2);
+
+          ipjs.store['adjustedHeight'] = ipjs.current.height();
+
+          if(ipjs.store['adjustedHeight'] < $max)
+          {
+            ipjs.store['currentTop'] = getTopAdjustments($max, ipjs.store['offset']['top']);
+
+            ipjs.current.css('top', ipjs.store['currentTop'] + 'px');
+          }
         }
 
-        $x = ($offset['top'] - ipjs.currentHeight);
-
-        if($x > 10)
-        {
-            ipjs.current.css('margin-top', $x + 'px');
-        }
-
-        ipjs.current.css('visibility', 'visible');
-
-        ipjs.visible = true;
+        ipjs.current.css('visibility', 'visible'); ipjs.visible = true;
     }
 
     function previewShow(enable)
     {
-      if(enable == false)
+      if(enable === false)
       {
         $previews = $('body').find('#video-preview, #image-preview');
 
@@ -101,7 +141,13 @@
 
         ipjs.visible = false;
         ipjs.current = ipjs.lastSrc = undefined;
-        ipjs.currentHeight = ipjs.currentWidth = 0;
+
+        ipjs.store = {
+          adjustedHeight : 0,
+          currentHeight : 0,
+          currentWidth : 0,
+          currentTop : undefined
+        };
 
         return false;
       }
@@ -129,7 +175,7 @@
       ipjs.lastExt = ipjs.lastSrc.split('.').pop().toLowerCase();
 
       if(arrayContains(ipjs.lastExt, ipjs.settings.extensions.images))
-      { 
+      {
         img = new Image(); img.orig = ipjs.lastSrc;
 
         $(img).on('load', function()
@@ -149,9 +195,9 @@
 
               if(ipjs.settings.css != undefined)
               {
-                ipjs.current.css(ipjs.settings.styles).css(ipjs.settings.css);
+                ipjs.current.css(ipjs.requiredCSS).css(ipjs.settings.css);
               } else {
-                ipjs.current.css(ipjs.settings.styles);
+                ipjs.current.css(ipjs.requiredCSS);
               }
             }
 
@@ -175,9 +221,9 @@
 
         if(ipjs.settings.css != undefined)
         {
-          $video.css(ipjs.settings.styles).css(ipjs.settings.css);
+          $video.css(ipjs.requiredCSS).css(ipjs.settings.css);
         } else {
-          $video.css(ipjs.settings.styles);
+          $video.css(ipjs.requiredCSS);
         }
 
         $video[0].load();
@@ -195,18 +241,18 @@
           return false;
         }
 
-        if($video.prop('readyState') > 3 && $video.width() > 0 && $video.height() > 0)
+        if($video.prop('readyState') >= 3 && $video.width() > 0 && $video.height() > 0)
         {
           $video.one('seeked').prop('currentTime', 0);
 
           ipjs.currentWidth = $video.width();
-          ipjs.currentHeight = $video.height();
+          ipjs.store['currentHeight'] = $video.height();
 
-          previewAdjust();
+          previewAdjust(isStatic() ? undefined : 1);
 
           return true;
         } else {
-          setTimeout(checkLoad, 100);
+          setTimeout(checkLoad, 150);
         }
       }
 
@@ -221,22 +267,27 @@
         {
           return false;
         }
-        
+
         if(ipjs.current.width() > 0 && ipjs.current.height() > 0)
         {
           ipjs.currentWidth = ipjs.current.width();
-          ipjs.currentHeight = ipjs.current.height();
+          ipjs.store['currentHeight'] = ipjs.current.height();
 
-          previewAdjust();
+          previewAdjust(isStatic() ? undefined : 1);
 
           return true;
         } else {
-          setTimeout(checkLoad, 100);
+          setTimeout(checkLoad, 150);
         }
       }
 
       checkLoad();
     };
+
+    function getWindowDimensions()
+    {
+      ipjs.windowWidth = $(window).width(); ipjs.windowHeight = $(window).height(); ipjs.windowWidthH = $(window).width() / 2;
+    }
 
     function bindHandlers()
     {
@@ -244,6 +295,8 @@
       {
         return false;
       }
+
+      getWindowDimensions();
 
       $.each(ipjs.settings.elements, function(index, value)
       {
@@ -258,20 +311,48 @@
             ipjs.timer = setTimeout(
               function()
               {
-                  if(!ipjs.visible)
-                  {
-                      previewShow();
-                  } else {
-                      return true;
-                  }
-                }, ipjs.settings.hoverDelay
-              );
+                if(!ipjs.visible)
+                {
+                  previewShow();
+                } else {
+                  return true;
+                }
+              }, ipjs.settings.hoverDelay
+            );
           });
 
           $(document).on('mouseleave', value, function(e)
           {
               clearTimeout(ipjs.timer); previewShow(false);
           });
+
+          $(window).resize(function()
+          {
+            if(ipjs.resizeTimer !== undefined)
+            {
+              clearTimeout(ipjs.resizeTimer);
+            }
+
+            ipjs.resizeTimer = setTimeout(
+              function()
+              {
+                getWindowDimensions();
+              }, 250
+            );
+          });
+
+          if(!ipjs.settings.staticPreview)
+          {
+            $(document).on('mousemove', value, function(e)
+            {
+                ipjs.settings.mouse = e;
+
+                if(ipjs.visible)
+                {
+                  previewAdjust(1);
+                }
+            });
+          }
         }
       });
     }

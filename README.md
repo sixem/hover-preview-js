@@ -35,25 +35,28 @@ $(document).ready(function()
 	$(document).imagePreview({
 		elements : ['a.preview'],
 		hoverDelay : 175,
-		margin : 20,
+		windowMargin : 8,
 		css : {
 			'-webkit-box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
 			'-moz-box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
-			'box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)'
+			'box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
+			'border-radius' : '3px'
 		},
 		extensions : {
-			images : ['jpg', 'jpeg', 'png'],
-			videos : ['webm', 'mp4']
+			images : ['jpg', 'jpeg', 'gif', 'png'],
+			videos : ['mp4', 'webm']
 		}
 	});
 });
 ```
-Below is a list of the available options and their default value.
+#### Overview
 
 Key | Default | Description
 ----|---------|------------
 `elements` | | The elements that should have a hoverable preview.
 `hoverDelay` | 150 | Delay in milliseconds before the preview is shown.
+`staticPreview` | true | Whether the preview should be static `true` or follow the cursor `false`.
 `css` | | Custom CSS rules that will be applied to the image or video.
-`margin` | 4 | Margin between the preview and the window borders.
+`windowMargin` | 4 | Margin between the preview and the window borders.
+`triggerMargin` | 24 | Margin between the the preview and the cursor or the element which triggered it.
 `extensions` | All | What extensions should have a hoverable preview (See above for an example).
