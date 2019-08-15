@@ -1,5 +1,7 @@
 # image.preview.js
-A simple jQuery plugin that adds hoverable image and video previews to links and other elements. 
+A simple jQuery plugin that adds hoverable image and video previews to links and other elements.
+
+A demo of the script can be found [here](https://eyy.co/demo/image.preview.js/).
 
 ## Installation
 This script depends on [jQuery](https://github.com/jquery/jquery).
@@ -58,5 +60,5 @@ Key | Default | Description
 `staticPreview` | true | Whether the preview should be static `true` or follow the cursor `false`.
 `css` | | Custom CSS rules that will be applied to the image or video.
 `windowMargin` | 4 | Margin between the preview and the window borders.
-`triggerMargin` | 24 | Margin between the the preview and the cursor or the element which triggered it.
+`triggerMargin` | 24 | Margin between the preview and the cursor/element which triggered it.
 `extensions` | All | What extensions should have a hoverable preview (See above for an example).

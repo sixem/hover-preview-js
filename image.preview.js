@@ -158,8 +158,12 @@
       {
         ipjs.lastSrc = ipjs.lastTrigger.data('preview');
       } else {
-
-        $attr = ipjs.lastTrigger.attr('href');
+        if(ipjs.lastTrigger.is('img'))
+        {
+          $attr = ipjs.lastTrigger.attr('src');
+        } else {
+          $attr = ipjs.lastTrigger.attr('href');
+        }
 
         if(typeof $attr !== typeof undefined && $attr !== false)
         {
@@ -300,64 +304,71 @@
 
       $.each(ipjs.settings.elements, function(index, value)
       {
-        $target = $(document).find(value);
+        $(document).off('mouseenter mouseleave mousemove', value);
 
-        if($target.length > 0)
+        $(document).on('mouseenter', value, function(e)
         {
-          $(document).on('mouseenter', value, function(e)
-          {
-            ipjs.lastTrigger = $(this);
+          ipjs.lastTrigger = $(this);
 
-            ipjs.timer = setTimeout(
-              function()
-              {
-                if(!ipjs.visible)
-                {
-                  previewShow();
-                } else {
-                  return true;
-                }
-              }, ipjs.settings.hoverDelay
-            );
-          });
-
-          $(document).on('mouseleave', value, function(e)
-          {
-              clearTimeout(ipjs.timer); previewShow(false);
-          });
-
-          $(window).resize(function()
-          {
-            if(ipjs.resizeTimer !== undefined)
+          ipjs.timer = setTimeout(
+            function()
             {
-              clearTimeout(ipjs.resizeTimer);
-            }
-
-            ipjs.resizeTimer = setTimeout(
-              function()
+              if(!ipjs.visible)
               {
-                getWindowDimensions();
-              }, 250
-            );
-          });
+                previewShow();
+              } else {
+                return true;
+              }
+            }, ipjs.settings.hoverDelay
+          );
+        });
 
-          if(!ipjs.settings.staticPreview)
+        $(document).on('mouseleave', value, function(e)
+        {
+            clearTimeout(ipjs.timer); previewShow(false);
+        });
+
+        $(window).off('resize');
+
+        $(window).on('resize',function()
+        {
+          if(ipjs.resizeTimer !== undefined)
           {
-            $(document).on('mousemove', value, function(e)
-            {
-                ipjs.settings.mouse = e;
-
-                if(ipjs.visible)
-                {
-                  previewAdjust(1);
-                }
-            });
+            clearTimeout(ipjs.resizeTimer);
           }
+            
+          ipjs.resizeTimer = setTimeout(
+            function()
+            {
+              getWindowDimensions();
+            }, 250
+          );
+        });
+
+        if(!ipjs.settings.staticPreview)
+        {
+          $(document).on('mousemove', value, function(e)
+          {
+              ipjs.settings.mouse = e;
+
+              if(ipjs.visible)
+              {
+                previewAdjust(1);
+              }
+          });
         }
       });
     }
 
-    bindHandlers();
+    this.unbind = function()
+    {
+      $.each(ipjs.settings.elements, function(index, value)
+      {
+        $(document).off('mouseenter mouseleave mousemove', value);
+      });
+    };
+
+    bindHandlers(); return this;
   };
 
 }(jQuery));
