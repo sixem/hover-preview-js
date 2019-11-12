@@ -20,7 +20,7 @@ The simplest way to use this plugin is to initialize it when the page is done lo
 ```
 $(document).ready(function()
 {
-	$(document).imagePreview({
+	var preview = $.fn.imagePreview({
 		elements : ['a.preview', 'div.preview']
 	});
 });
@@ -34,9 +34,9 @@ There are a few options that can be passed to the script in order to customzie i
 ```
 $(document).ready(function()
 {
-	$(document).imagePreview({
+	var preview = $.fn.imagePreview({
 		elements : ['a.preview'],
-		hoverDelay : 175,
+		hoverDelay : 75,
 		windowMargin : 8,
 		css : {
 			'-webkit-box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
@@ -56,7 +56,7 @@ $(document).ready(function()
 Key | Default | Description
 ----|---------|------------
 `elements` | | The elements that should have a hoverable preview.
-`hoverDelay` | 150 | Delay in milliseconds before the preview is shown.
+`hoverDelay` | 75 | Delay in milliseconds before the preview is shown.
 `staticPreview` | true | Whether the preview should be static `true` or follow the cursor `false`.
 `css` | | Custom CSS rules that will be applied to the image or video.
 `windowMargin` | 4 | Margin between the preview and the window borders.

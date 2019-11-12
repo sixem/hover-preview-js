@@ -2,12 +2,21 @@
 
 (function($)
 {
+  'use strict';
+
   $.fn.imagePreview = function(options)
   {
-    var ipjs = this;
+    var main = {
+      loading : null,
+      store : {},
+      last : {},
+      css : {
+        required : {}
+      }
+    };
 
-    ipjs.settings = $.extend({
-      hoverDelay : 150,
+    main.settings = $.extend({
+      hoverDelay : 75,
       staticPreview : true,
       windowMargin : 4,
       triggerMargin : 24,
@@ -16,133 +25,131 @@
           images : ['jpg', 'jpeg', 'gif', 'png', 'ico', 'svg', 'bmp'],
           videos : ['mp4', 'webm']
       },
-    }, ipjs.settings, options);
+    }, main.settings, options);
 
-    ipjs.store = {};
-
-    ipjs.requiredCSS = {
-          'max-height' : 'calc(100% - ' + (ipjs.settings.windowMargin * 2) + 'px)',
+    main.css.required = {
+          'max-height' : 'calc(100% - ' + (main.settings.windowMargin * 2) + 'px)',
           'visibility' : 'hidden',
           'position' : 'fixed',
-          'top' : ipjs.settings.windowMargin,
+          'top' : main.settings.windowMargin,
           'left' : 0,
-          'z-index' : 4,
+          'z-index' : 9999,
           'pointer-events' : 'none'
     };
 
-    function isStatic()
+    main.refreshSettings = function()
     {
-      return !ipjs.settings.staticPreview && ipjs.settings.mouse != undefined ? false : true;
-    }
+      main.css.required['max-height'] = ('calc(100% - ' + (main.settings.windowMargin * 2) + 'px)');
+      main.css.required.top = main.settings.windowMargin;
+    };
 
-    function arrayContains(t, e)
+    main.isStatic = function()
+    {
+      return !main.settings.staticPreview && main.settings.mouse != undefined ? false : true;
+    };
+
+    main.arrayContains = function(t, e)
     {
         return $.inArray(t, e) > -1;
-    }
+    };
 
-    function getElementPositions($t)
+    function getElementPositions(target)
     {
-        $offsets = $t.offset();
+        var offsets = target.offset();
 
         return {
-            'top' : $offsets.top - ipjs.windowScrollTop,
-            'left' : $offsets.left - ipjs.windowScrollLeft,
-            'offset' : $offsets,
-            'margin' : $t.width() + ipjs.settings.triggerMargin,
+            'top' : offsets.top - main.windowScrollTop,
+            'left' : offsets.left - main.windowScrollLeft,
+            'offset' : offsets,
+            'margin' : target.width() + main.settings.triggerMargin,
         };
     }
 
-    function getTopAdjustments($max, $top)
+    function getTopAdjustments(max, top)
     {
-      $perc = (($top / $max) * 100); $perc = $perc > 100 ? 100 : $perc;
-      $calc = (($max / 100) * $perc) - ((ipjs.store['adjustedHeight'] / 100) * $perc);
+      var perc = ((top / max) * 100); perc = perc > 100 ? 100 : perc;
+      var calc = ((max / 100) * perc) - ((main.store.adjustedHeight / 100) * perc);
 
-      ipjs.current.css('max-height', $max - ($max - ipjs.store['adjustedHeight']) + 'px');
+      main.current.css('max-height', max - (max - main.store.adjustedHeight) + 'px');
 
-      return $calc < ipjs.settings.windowMargin ? ipjs.settings.windowMargin : $calc;
+      return calc < main.settings.windowMargin ? main.settings.windowMargin : calc;
     }
 
-    function previewAdjust($e)
+    function previewAdjust()
     {
-        if(ipjs.current == undefined)
-        {
-            return false;
-        }
+        if(main.current == undefined) return false;
 
-        ipjs.windowScrollTop = $(window).scrollTop(); ipjs.windowScrollLeft = $(window).scrollLeft();
+        main.windowScrollTop = $(window).scrollTop(); main.windowScrollLeft = $(window).scrollLeft();
 
-        if(!isStatic())
+        if(!main.isStatic())
         {
-          if(ipjs.store['offset'] == undefined)
+          if(main.store.offset == undefined)
           {
-            $offsets = ipjs.lastTrigger.offset();
-
-            ipjs.store['offset'] = {
-              'top' : ipjs.settings.mouse.pageY - ipjs.windowScrollTop,
-              'left' : ipjs.settings.mouse.pageX - ipjs.windowScrollLeft,
-              'margin' : ipjs.settings.triggerMargin
+            main.store.offset = {
+              'top' : main.settings.mouse.pageY - main.windowScrollTop,
+              'left' : main.settings.mouse.pageX - main.windowScrollLeft,
+              'margin' : main.settings.triggerMargin
             };
           } else {
-            ipjs.store['offset']['left'] = ipjs.settings.mouse.pageX - ipjs.windowScrollLeft;
+            main.store.offset.left = main.settings.mouse.pageX - main.windowScrollLeft;
           }
         } else {
-          if(ipjs.store['offset'] == undefined)
+          if(main.store.offset == undefined)
           {
-            ipjs.store['offset'] = getElementPositions(ipjs.lastTrigger);
+            main.store.offset = getElementPositions(main.last.trigger);
           }
         }
 
-        if(ipjs.windowWidthH > ipjs.windowWidth - ipjs.store['offset']['left'])
-        {
-            $pos = Math.floor(ipjs.windowWidth - ipjs.store['offset']['left'] + ipjs.settings.triggerMargin);
+        var pos;
 
-            ipjs.current.css({
+        if(main.windowWidthH > main.windowWidth - main.store.offset.left)
+        {
+            pos = Math.floor(main.windowWidth - main.store.offset.left + main.settings.triggerMargin);
+
+            main.current.css({
                 'left' : '',
-                'right' : $pos + 'px',
-                'max-width' : ((ipjs.windowWidth - $pos) - ipjs.settings.windowMargin) + 'px'
+                'right' : pos + 'px',
+                'max-width' : ((main.windowWidth - pos) - main.settings.windowMargin) + 'px'
             });
         } else {
-            $pos = Math.floor(ipjs.store['offset']['left'] + ipjs.store['offset']['margin']);
+            pos = Math.floor(main.store.offset.left + main.store.offset.margin);
 
-            ipjs.current.css({
-                'left' : $pos + 'px',
+            main.current.css({
+                'left' : pos + 'px',
                 'right' : '',
-                'max-width' : ((ipjs.windowWidth - $pos) - ipjs.settings.windowMargin) + 'px'
+                'max-width' : ((main.windowWidth - pos) - main.settings.windowMargin) + 'px'
             });
         }
 
-        if(ipjs.store['currentTop'] == undefined)
+        if(main.store.currentTop == undefined)
         {
-          $max = ipjs.windowHeight - (ipjs.settings.windowMargin * 2);
+          var max = main.windowHeight - (main.settings.windowMargin * 2);
 
-          ipjs.store['adjustedHeight'] = ipjs.current.height();
+          main.store.adjustedHeight = main.current.height();
 
-          if(ipjs.store['adjustedHeight'] < $max)
+          if(main.store.adjustedHeight < max)
           {
-            ipjs.store['currentTop'] = getTopAdjustments($max, ipjs.store['offset']['top']);
+            main.store.currentTop = getTopAdjustments(max, main.store.offset.top);
 
-            ipjs.current.css('top', ipjs.store['currentTop'] + 'px');
+            main.current.css('top', main.store.currentTop + 'px');
           }
         }
 
-        ipjs.current.css('visibility', 'visible'); ipjs.visible = true;
+        main.current.css('visibility', 'visible'); main.visible = true;
     }
 
     function previewShow(enable)
     {
       if(enable === false)
       {
-        $previews = $('body').find('#video-preview, #image-preview');
+        var previews = $('body').find('#video-preview, #image-preview');
 
-        if($previews.length > 0)
-        {
-          $previews.remove();
-        }
+        if(previews.length > 0) previews.remove();
 
-        ipjs.visible = false;
-        ipjs.current = ipjs.lastSrc = undefined;
+        main.visible = false;
+        main.current = main.last.src = undefined;
 
-        ipjs.store = {
+        main.store = {
           adjustedHeight : 0,
           currentHeight : 0,
           currentWidth : 0,
@@ -152,107 +159,160 @@
         return false;
       }
 
-      $data = ipjs.lastTrigger.data('preview');
+      var data, attr;
 
-      if($data !== false && $data !== undefined)
+      data = main.last.trigger.data('preview');
+
+      if(data !== false && data !== undefined)
       {
-        ipjs.lastSrc = ipjs.lastTrigger.data('preview');
+        main.last.src = main.last.trigger.data('preview');
       } else {
-        if(ipjs.lastTrigger.is('img'))
+        if(main.last.trigger.is('img'))
         {
-          $attr = ipjs.lastTrigger.attr('src');
+          attr = main.last.trigger.attr('src');
         } else {
-          $attr = ipjs.lastTrigger.attr('href');
+          attr = main.last.trigger.attr('href');
         }
 
-        if(typeof $attr !== typeof undefined && $attr !== false)
+        if(typeof attr !== typeof undefined && attr !== false) main.last.src = attr;
+      }
+
+      if(main.last.src == undefined) return false;
+
+      main.last.ext = main.last.src.split('.').pop().toLowerCase();
+
+      if(main.arrayContains(main.last.ext, main.settings.extensions.images))
+      {
+        if(main.loading === null)
         {
-          ipjs.lastSrc = $attr;
+          $(main).trigger('loadChange', true); main.loading = true;
         }
-      }
 
-      if(ipjs.lastSrc == undefined)
-      {
-        return false;
-      }
-
-      ipjs.lastExt = ipjs.lastSrc.split('.').pop().toLowerCase();
-
-      if(arrayContains(ipjs.lastExt, ipjs.settings.extensions.images))
-      {
-        img = new Image(); img.orig = ipjs.lastSrc;
+        var img = new Image(); img.orig = main.last.src;
 
         $(img).on('load', function()
         {
-          if(!ipjs.visible)
+          if(!main.visible)
           {
-            if(this.orig == ipjs.lastSrc)
+            if(this.orig == main.last.src)
             {
-              $('body').prepend('<img id="image-preview" src="' + img.src + '">');
+              var image = $('<img>', {
+                id : 'image-preview',
+                src : img.src
+              }).appendTo($('body'));
 
-              ipjs.current = $('body').find('#image-preview');
+              main.current = image;
 
-              ipjs.current.on('load', function()
+              main.current.on('load', function()
               {
-                $(document).imagePreview.getDimensions();
+                main.getDimensions();
               });
 
-              if(ipjs.settings.css != undefined)
+              if(main.settings.css != undefined)
               {
-                ipjs.current.css(ipjs.requiredCSS).css(ipjs.settings.css);
+                main.current.css(main.css.required).css(main.settings.css);
               } else {
-                ipjs.current.css(ipjs.requiredCSS);
+                main.current.css(main.css.required);
               }
+
+              if(main.loading !== null)
+              {
+                $(main).trigger('loadChange', false); main.loading = null;
+              }
+
+              $(main).trigger(
+                'loaded', {
+                  itemType : 0,
+                  element : image,
+                  source : this.orig,
+                  dimensions : {
+                    width : this.width,
+                    height : this.height
+                  }
+                }
+              );
             }
 
             return true;
           }
         });
 
-        img.src = ipjs.lastSrc;
+        img.src = main.last.src;
       }
 
-      if(arrayContains(ipjs.lastExt, ipjs.settings.extensions.videos))
+      if(main.arrayContains(main.last.ext, main.settings.extensions.videos))
       {
-        $('body').prepend('<video id="video-preview" controls loop muted autoplay><source src=""></video>');
-
-        $video = $('body').find('#video-preview').first();
-
-        ipjs.current = $video;
-
-        $video.attr('data-orig', ipjs.lastSrc);
-        $video.find('source').attr('src', ipjs.lastSrc);
-
-        if(ipjs.settings.css != undefined)
+        if(main.loading === null)
         {
-          $video.css(ipjs.requiredCSS).css(ipjs.settings.css);
-        } else {
-          $video.css(ipjs.requiredCSS);
+          $(main).trigger('loadChange', true); main.loading = true;
         }
 
-        $video[0].load();
+        var video = $('<video/>', {
+          id : 'video-preview',
+          controls : '',
+          loop : '',
+          muted : '',
+          autoplay : ''
+        }).prependTo($('body'));
 
-        waitForVideo($video);
+        var source = $('<source>', {
+          src : ''
+        }).prependTo(video);
+
+        main.current = video;
+
+        video.attr('data-orig', main.last.src);
+        source.attr('src', main.last.src);
+
+        if(main.settings.css != undefined)
+        {
+          video.css(main.css.required).css(main.settings.css);
+        } else {
+          video.css(main.css.required);
+        }
+
+        video[0].muted = true;
+        video[0].load();
+
+        main.waitForVideo(video);
       }
     }
 
-    function waitForVideo($video)
+    main.waitForVideo = function(video)
     {
       function checkLoad()
       {
-        if(ipjs.current == undefined || $video.data('orig') != ipjs.lastSrc)
+        if(main.current == undefined || video.data('orig') != main.last.src) return false;
+
+        if(video.prop('readyState') >= 3 && video.width() > 0 && video.height() > 0)
         {
-          return false;
-        }
+          video.one('seeked').prop('currentTime', 0);
 
-        if($video.prop('readyState') >= 3 && $video.width() > 0 && $video.height() > 0)
-        {
-          $video.one('seeked').prop('currentTime', 0);
+          main.currentWidth = video.width();
+          main.store.currentHeight = video.height();
 
-          ipjs.currentWidth = $video.width();
-          ipjs.store['currentHeight'] = $video.height();
+          previewAdjust(main.isStatic() ? undefined : 1);
 
-          previewAdjust(isStatic() ? undefined : 1);
+          video[0].play();
+
+          $(main).trigger('loadChange', false);
+
+          if(main.loading !== null)
+          {
+            $(main).trigger('loadChange', false); main.loading = null;
+          }
+
+          $(main).trigger(
+            'loaded', {
+              itemType : 1,
+              element : video,
+              source : video.data('orig'),
+              dimensions : {
+                width : video.width(),
+                height : video.height()
+              }
+            }
+          );
 
           return true;
         } else {
@@ -263,21 +323,18 @@
       checkLoad();
     };
 
-    $.fn.imagePreview.getDimensions = function()
+    main.getDimensions = function()
     {
       function checkLoad()
       {
-        if(ipjs.current == undefined)
-        {
-          return false;
-        }
+        if(main.current == undefined) return false;
 
-        if(ipjs.current.width() > 0 && ipjs.current.height() > 0)
+        if(main.current.width() > 0 && main.current.height() > 0)
         {
-          ipjs.currentWidth = ipjs.current.width();
-          ipjs.store['currentHeight'] = ipjs.current.height();
+          main.currentWidth = main.current.width();
+          main.store.currentHeight = main.current.height();
 
-          previewAdjust(isStatic() ? undefined : 1);
+          previewAdjust(main.isStatic() ? undefined : 1);
 
           return true;
         } else {
@@ -290,54 +347,54 @@
 
     function getWindowDimensions()
     {
-      ipjs.windowWidth = $(window).width(); ipjs.windowHeight = $(window).height(); ipjs.windowWidthH = $(window).width() / 2;
+      main.windowWidth = $(window).width(); main.windowHeight = $(window).height(); main.windowWidthH = $(window).width() / 2;
     }
 
     function bindHandlers()
     {
-      if(ipjs.settings.elements.length < 1)
-      {
-        return false;
-      }
+      if(main.settings.elements.length < 1) return false;
 
       getWindowDimensions();
 
-      $.each(ipjs.settings.elements, function(index, value)
+      $.each(main.settings.elements, function(index, value)
       {
-        $(document).off('mouseenter mouseleave mousemove', value);
-
-        $(document).on('mouseenter', value, function(e)
+        $(document)
+        .off('mouseenter', value)
+        .on('mouseenter', value, function(e)
         {
-          ipjs.lastTrigger = $(this);
+          main.last.trigger = $(this);
 
-          ipjs.timer = setTimeout(
+          main.timer = setTimeout(
             function()
             {
-              if(!ipjs.visible)
+              if(!main.visible)
               {
                 previewShow();
               } else {
                 return true;
               }
-            }, ipjs.settings.hoverDelay
+            }, main.settings.hoverDelay
           );
         });
 
-        $(document).on('mouseleave', value, function(e)
+        $(document)
+        .off('mouseleave', value)
+        .on('mouseleave', value, function(e)
         {
-            clearTimeout(ipjs.timer); previewShow(false);
+            if(main.loading !== null)
+            {
+              $(main).trigger('loadChange', false); main.loading = null;
+            }
+            clearTimeout(main.timer); previewShow(false);
         });
 
-        $(window).off('resize');
-
-        $(window).on('resize',function()
+        $(window)
+        .off('resize')
+        .on('resize',function()
         {
-          if(ipjs.resizeTimer !== undefined)
-          {
-            clearTimeout(ipjs.resizeTimer);
-          }
+          if(main.resizeTimer !== undefined) clearTimeout(main.resizeTimer);
             
-          ipjs.resizeTimer = setTimeout(
+          main.resizeTimer = setTimeout(
             function()
             {
               getWindowDimensions();
@@ -345,30 +402,20 @@
           );
         });
 
-        if(!ipjs.settings.staticPreview)
+        if(!main.settings.staticPreview)
         {
-          $(document).on('mousemove', value, function(e)
+          $(document)
+          .off('mousemove', value)
+          .on('mousemove', value, function(e)
           {
-              ipjs.settings.mouse = e;
+              main.settings.mouse = e;
 
-              if(ipjs.visible)
-              {
-                previewAdjust(1);
-              }
+              if(main.visible) previewAdjust(1);
           });
         }
       });
     }
 
-    this.unbind = function()
-    {
-      $.each(ipjs.settings.elements, function(index, value)
-      {
-        $(document).off('mouseenter mouseleave mousemove', value);
-      });
-    };
-
-    bindHandlers(); return this;
+    bindHandlers(); return main;
   };
-
 }(jQuery));
