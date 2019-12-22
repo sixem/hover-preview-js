@@ -28,6 +28,25 @@ $(document).ready(function()
 The `elements` parameters are the elements that you want to have an image or video preview. `elements : ['a']` will apply it to every link on the page while `elements : ['a.preview']` will apply it to all links with the `preview` class etc.
 
 The plugin will use the image or video URL stored in the `href` attribute, if no `href` attribute is found it'll instead look for a `data-preview` attribute, this is what you want to use if you are using elements that aren't `a` elements.
+
+### Events
+The plugin has two events which can be listened to. `loadChange` triggers whenever the loading state changes and `loaded` triggers whenever a new item has been succesfully loaded and displayed.
+```
+var preview = $.fn.imagePreview({
+	elements : ['a.preview', 'div.preview']
+});
+	
+$(preview).on('loadChange', (e, state) =>
+{
+	$('body').css('cursor', state ? 'progress' : 'pointer');
+});
+
+$(preview).on('loaded', (e, data) =>
+{
+	console.log('Loaded', data);
+});
+```
+
 ### Options
 There are a few options that can be passed to the script in order to customzie it a little bit.
 #### Example
