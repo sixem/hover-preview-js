@@ -1,7 +1,7 @@
 # image.preview.js
 A simple jQuery plugin that adds hoverable image and video previews to links and other elements.
 
-A demo of the script can be found [here](https://eyy.co/demo/image.preview.js/).
+A demo of the script can be found [here](https://five.sh/demo/image-preview/).
 
 ## Installation
 This script depends on [jQuery](https://github.com/jquery/jquery).
