@@ -48,7 +48,7 @@ $(preview).on('loaded', (e, data) =>
 ```
 
 ### Options
-There are a few options that can be passed to the script in order to customzie it a little bit.
+There are a few options that can be passed to the script in order to customize it a little bit.
 #### Example
 ```
 $(document).ready(function()
