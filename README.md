@@ -1,4 +1,4 @@
-hover-preview-js
+# hover-preview-js
 A simple plugin that adds hoverable image and video previews to any element.
 
 * No dependencies.
