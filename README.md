@@ -12,23 +12,38 @@ A demo of the script can be found [here](https://five.sh/demo/hover-preview/).
 `npm install hover-preview-js`
 
 ### Include the script
-Download and include the script in your web page.
-```
+```javascript
 // CommonJS
 const preview = require('hover-preview-js');
 
 // ES6
 import preview from 'hover-preview-js';
 
-// if importing it as a <script>
+// if importing it as a <script> in the browser
 const preview = window.hoverPreview;
 ```
 ### Usage
+An example element. The script will look for the preview URL in `data-src`, `src` and `href` in that order.
+```html
+<div class="preview" data-src="./DSCF3570sss_1.jpg">DSCF3570sss_1.jpg (2,167 kB)</div>
 ```
-var p = preview(document.querySelector('div.preview'),
+Pass elements to the script.
+```javascript
+// apply it to a single element
+var element = preview(document.querySelector('div.preview'),
 {
-	delay : 100
+	delay : 100 // sets a delay before the preview is shown
 });
+
+// apply it to multiple elements
+var elements = [...document.querySelectorAll('.preview')].map((element) =>
+{
+	return preview(element);
+});
+
+// functions
+element.reload(); // reloads the instance
+element.destroy(); // removes all event listeners from the instance
 ```
 
 ## License
