@@ -1,83 +1,56 @@
-# image.preview.js
-A simple jQuery plugin that adds hoverable image and video previews to links and other elements.
+hover-preview-js
+A simple plugin that adds hoverable image and video previews to any element.
 
-A demo of the script can be found [here](https://five.sh/demo/image-preview/).
+* No dependencies.
+* Browser, ES6 and CommonJS support.
 
-## Installation
-This script depends on [jQuery](https://github.com/jquery/jquery).
+A demo of the script can be found [here](https://five.sh/demo/hover-preview/).
 
-#### Script
+## Usage
+
+### Install via npm
+`npm install hover-preview-js`
+
+### Include the script
 Download and include the script in your web page.
 ```
-curl -LO https://raw.github.com/sixem/image.preview.js/master/image.preview.js
+// CommonJS
+const preview = require('hover-preview-js');
+
+// ES6
+import preview from 'hover-preview-js';
+
+// if importing it as a <script>
+const preview = window.hoverPreview;
 ```
-##### Minified version.
+### Usage
 ```
-curl -LO https://raw.github.com/sixem/image.preview.js/master/image.preview.min.js
-```
-## Usage
-The simplest way to use this plugin is to initialize it when the page is done loading.
-```
-$(document).ready(function()
+var p = preview(document.querySelector('div.preview'),
 {
-	var preview = $.fn.imagePreview({
-		elements : ['a.preview', 'div.preview']
-	});
-});
-```
-The `elements` parameters are the elements that you want to have an image or video preview. `elements : ['a']` will apply it to every link on the page while `elements : ['a.preview']` will apply it to all links with the `preview` class etc.
-
-The plugin will use the image or video URL stored in the `href` attribute, if no `href` attribute is found it'll instead look for a `data-preview` attribute, this is what you want to use if you are using elements that aren't `a` elements.
-
-### Events
-The plugin has two events which can be listened to. `loadChange` triggers whenever the loading state changes and `loaded` triggers whenever a new item has been succesfully loaded and displayed.
-```
-var preview = $.fn.imagePreview({
-	elements : ['a.preview', 'div.preview']
-});
-	
-$(preview).on('loadChange', (e, state) =>
-{
-	$('body').css('cursor', state ? 'progress' : 'pointer');
-});
-
-$(preview).on('loaded', (e, data) =>
-{
-	console.log('Loaded', data);
+	delay : 100
 });
 ```
 
-### Options
-There are a few options that can be passed to the script in order to customize it a little bit.
-#### Example
-```
-$(document).ready(function()
-{
-	var preview = $.fn.imagePreview({
-		elements : ['a.preview'],
-		hoverDelay : 75,
-		windowMargin : 8,
-		css : {
-			'-webkit-box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
-			'-moz-box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
-			'box-shadow' : '0px 0px 3px 0px rgba(0,0,0,0.35)',
-			'border-radius' : '3px'
-		},
-		extensions : {
-			images : ['jpg', 'jpeg', 'gif', 'png'],
-			videos : ['mp4', 'webm']
-		}
-	});
-});
-```
-#### Overview
+## License
 
-Key | Default | Description
-----|---------|------------
-`elements` | | The elements that should have a hoverable preview.
-`hoverDelay` | 75 | Delay in milliseconds before the preview is shown.
-`staticPreview` | true | Whether the preview should be static `true` or follow the cursor `false`.
-`css` | | Custom CSS rules that will be applied to the image or video.
-`windowMargin` | 4 | Margin between the preview and the window borders.
-`triggerMargin` | 24 | Margin between the preview and the cursor/element which triggered it.
-`extensions` | All | What extensions should have a hoverable preview (See above for an example).
+MIT License
+
+Copyright (c) 2020 ему (sixem)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

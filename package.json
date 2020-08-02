@@ -1,0 +1,42 @@
+{
+  "name": "hover-preview-js",
+  "version": "2.0.0",
+  "description": "Adds hoverable video and image previews to elements in Vanilla JS.",
+  "main": "./dist/hover-preview.min.js",
+  "scripts": {
+    "build": "cross-env NODE_ENV=development webpack --config ./webpack.config.js && cross-env NODE_ENV=production webpack --config ./webpack.config.js",
+    "build-dev": "cross-env NODE_ENV=development webpack -w --config ./webpack.config.js",
+    "lint": "eslint ./src",
+    "test": "npm run lint && npm run build"
+  },
+  "keywords": [
+    "preview",
+    "video",
+    "image",
+    "hover",
+    "hoverable"
+  ],
+  "author": "ему (sixem)",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "cross-env": "^7.0.2",
+    "eslint": "^7.6.0",
+    "moment": "^2.27.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "browserslist": "> 0.25%, not dead",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sixem/hover-preview-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sixem/hover-preview-js/issues"
+  },
+  "homepage": "https://github.com/sixem/hover-preview-js",
+  "dependencies": {}
+}
