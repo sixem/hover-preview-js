@@ -1,4 +1,6 @@
 # hover-preview-js
+<img alt="npm" src="https://img.shields.io/npm/v/hover-preview-js?style=flat-square"> <img alt="Travis (.com)" src="https://img.shields.io/travis/com/sixem/hover-preview-js?style=flat-square">
+
 A simple plugin that adds hoverable image and video previews to any element.
 
 * No dependencies.
@@ -11,6 +13,9 @@ A demo of the script can be found [here](https://five.sh/demo/hover-preview/).
 ### Install via npm
 `npm install hover-preview-js`
 
+or if using it directly in the browser:
+
+`<script type="text/javascript" src="./dist/hover-preview.min.js"></script>`
 ### Include the script
 ```javascript
 // CommonJS
