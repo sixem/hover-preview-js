@@ -50,6 +50,13 @@ function onEnter(e)
 		// create preview container
 		var container = document.body.appendChild(createContainer());
 
+		// change cursor style if option is set
+		if(this.options.cursor && this.data.cursor === null)
+		{
+			this.data.cursor = target.style.cursor;
+			target.style.cursor = 'progress';
+		}
+
 		// handle image type
 		if(this.data.type === 0 || this.data.type === 1)
 		{
@@ -70,6 +77,12 @@ function onEnter(e)
 				update.call(_this);
 
 				container.style['visibility'] = 'visible';
+
+				// media is loaded, revert loading cursor
+				if(_this.options.cursor)
+				{
+					target.style.cursor = (_this.data.cursor ? _this.data.cursor : '');
+				}
 			});
 		}
 	}
@@ -113,9 +126,15 @@ export function mouseenter(e)
 }
 
 // destroy preview container
-export function mouseleave()
+export function mouseleave(e)
 {
 	clearTimeout(this.options.delay);
+
+	if(this.options.cursor && e.target.style.cursor === 'progress')
+	{
+		e.target.style.cursor = this.data.cursor ? this.data.cursor : '';
+		this.data.cursor = null;
+	}
 
 	var container = document.querySelector('.preview-container');
 

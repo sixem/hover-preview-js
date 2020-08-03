@@ -11,7 +11,8 @@ import {
 } from './events';
 
 const defaults = {
-	delay : 75
+	delay : 75,
+	cursor : true
 };
 
 class imagePreview
@@ -51,6 +52,7 @@ function setup()
 	this.options = {...defaults, ...this.options};
 
 	this.data = {
+		cursor : null,
 		wait : null,
 		left : null,
 		src : null,

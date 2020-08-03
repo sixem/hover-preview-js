@@ -70,7 +70,7 @@ export function getMove()
 
 export function getType()
 {
-	this.data.extension = this.data.src.split('.').pop();
+	this.data.extension = this.data.src.split('.').pop().toLowerCase();
 
 	if(['jpg', 'jpeg', 'gif', 'png', 'ico', 'svg', 'bmp', 'webp'].includes(this.data.extension))
 	{
