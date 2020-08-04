@@ -15,7 +15,7 @@ const defaults = {
 	cursor : true
 };
 
-class imagePreview
+class hoverPreview
 {
 	constructor(element, options = {})
 	{
@@ -80,4 +80,4 @@ function setup()
 }
 
 // export default
-export default (element, options) => new imagePreview(element, options)
+export default (element, options) => new hoverPreview(element, options)

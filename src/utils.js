@@ -108,6 +108,11 @@ export function createContainer()
 	return container;
 }
 
+function encodeUrl(input)
+{
+	return encodeURI(input).replace('#', '%23').replace('?', '%3F');
+}
+
 export function loadImage(src, callback)
 {
 	var img = document.createElement('img'), _this = this;
@@ -115,7 +120,7 @@ export function loadImage(src, callback)
 	img.style['max-width'] = 'inherit';
 	img.style['max-height'] = 'inherit';
 
-	img.src = src;
+	img.src = encodeUrl(src);
 
 	_this.data.wait = setInterval(function()
 	{
@@ -139,7 +144,7 @@ export function loadVideo(src, callback)
 	});
 
 	source.type = ('video/' + this.data.extension);
-	source.src = src;
+	source.src = encodeUrl(src);
 
 	video.style['max-width'] = 'inherit';
 	video.style['max-height'] = 'inherit';
