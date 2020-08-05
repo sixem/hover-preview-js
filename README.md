@@ -27,30 +27,50 @@ import hoverPreview from 'hover-preview-js';
 // if importing it as a <script> in the browser
 const hoverPreview = window.hoverPreview;
 ```
-### Usage
-An example element. The script will look for the preview URL in `data-src`, `src` and `href` in that order.
+### Example Usage
+An example element. The script will look for the preview URL in `data-src`, `src` and `href` in that order, or if a `source` option is passed, then that will take priority over everything else.
 ```html
 <div class="preview" data-src="./DSCF3570sss_1.jpg">DSCF3570sss_1.jpg (2,167 kB)</div>
 ```
 Pass elements to the script.
 ```javascript
 // apply it to a single element
-var element = hoverPreview(document.querySelector('div.preview'),
+var preview = hoverPreview(document.querySelector('div.preview'),
 {
 	delay : 100, // sets a delay before the preview is shown
 	cursor : true // enables a loading cursor while the preview is loading
 });
 
 // apply it to multiple elements
-var elements = [...document.querySelectorAll('.preview')].map((element) =>
+var previews = [...document.querySelectorAll('.preview')].map((element, index) =>
 {
-	return hoverPreview(element);
+	return hoverPreview(element, {
+		source : `/image_${index}.jpg`
+	});
 });
 
 // functions
 element.reload(); // reloads the instance
 element.destroy(); // removes all event listeners from the instance
 ```
+
+## Options
+
+#### `source`
+Sets the preview source directly. This will override any `data-src`, `src` and `href` attribute.
+##### Default: `null`
+
+#### `delay`
+Enables a hover delay (`ms`) before the preview is triggered.
+##### Default: `75`
+
+#### `cursor`
+Adds a temporary loading cursor while the preview is loading.
+##### Default: `true`
+
+#### `encodeAll`
+Encodes a few extra characters (`#` and `?`) when processing the URL.
+##### Default: `false`
 
 ## License
 

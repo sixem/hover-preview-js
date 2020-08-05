@@ -110,7 +110,7 @@ export function createContainer()
 
 function encodeUrl(input)
 {
-	return encodeURI(input).replace('#', '%23').replace('?', '%3F');
+	return this.options.encodeAll ? encodeURI(input).replace('#', '%23').replace('?', '%3F') : encodeURI(input);
 }
 
 export function loadImage(src, callback)
@@ -120,7 +120,7 @@ export function loadImage(src, callback)
 	img.style['max-width'] = 'inherit';
 	img.style['max-height'] = 'inherit';
 
-	img.src = encodeUrl(src);
+	img.src = encodeUrl.call(_this, src);
 
 	_this.data.wait = setInterval(function()
 	{
@@ -144,7 +144,7 @@ export function loadVideo(src, callback)
 	});
 
 	source.type = ('video/' + this.data.extension);
-	source.src = encodeUrl(src);
+	source.src = encodeUrl.call(this, src);
 
 	video.style['max-width'] = 'inherit';
 	video.style['max-height'] = 'inherit';

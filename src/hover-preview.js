@@ -12,6 +12,7 @@ import {
 
 const defaults = {
 	delay : 75,
+	encodeAll : false,
 	cursor : true
 };
 

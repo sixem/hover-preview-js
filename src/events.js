@@ -20,15 +20,20 @@ function onEnter(e)
 	var target = e.target;
 
 	// get source
-	if(target.hasAttribute('data-src'))
+	if(Object.prototype.hasOwnProperty.call(this.options, 'source') && this.options.source)
 	{
-		this.data.src = target.getAttribute('data-src');
-	} else if(target.hasAttribute('src'))
-	{
-		this.data.src = target.getAttribute('src');
-	} else if(target.hasAttribute('href'))
-	{
-		this.data.src = target.getAttribute('href');
+		this.data.src = this.options.source;
+	} else {
+		if(target.hasAttribute('data-src'))
+		{
+			this.data.src = target.getAttribute('data-src');
+		} else if(target.hasAttribute('src'))
+		{
+			this.data.src = target.getAttribute('src');
+		} else if(target.hasAttribute('href'))
+		{
+			this.data.src = target.getAttribute('href');
+		}
 	}
 
 	if(this.data.src === null)
@@ -119,10 +124,15 @@ export function mouseenter(e)
 
 	var _this = this;
 
-	this.options.delay = setTimeout(function()
+	if(this.options.delay && this.options.delay > 0)
 	{
+		this.options.delay = setTimeout(function()
+		{
+			onEnter.call(_this, e);
+		}, this.options.delay);
+	} else {
 		onEnter.call(_this, e);
-	}, this.options.delay);
+	}
 }
 
 // destroy preview container
