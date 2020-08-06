@@ -54,13 +54,17 @@ function setup()
 
 	this.data = {
 		cursor : null,
-		wait : null,
 		left : null,
 		src : null,
 		type : null,
 		offset : null,
 		dimensions : null
 	};
+
+	this.timers = {
+		load : null,
+		delay : null
+	}
 
 	// set handle
 	this.handle = this.element;

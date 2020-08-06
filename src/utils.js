@@ -122,13 +122,13 @@ export function loadImage(src, callback)
 
 	img.src = encodeUrl.call(_this, src);
 
-	_this.data.wait = setInterval(function()
+	_this.timers.load = setInterval(function()
 	{
 		var w = img.naturalWidth, h = img.naturalHeight;
 				
 		if(w && h)
 		{
-			clearInterval(_this.data.wait);
+			clearInterval(_this.timers.load);
 			callback(img, [w, h]);
 		}
 	}, 30);

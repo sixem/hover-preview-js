@@ -126,7 +126,7 @@ export function mouseenter(e)
 
 	if(this.options.delay && this.options.delay > 0)
 	{
-		this.options.delay = setTimeout(function()
+		this.timers.delay = setTimeout(function()
 		{
 			onEnter.call(_this, e);
 		}, this.options.delay);
@@ -138,8 +138,6 @@ export function mouseenter(e)
 // destroy preview container
 export function mouseleave(e)
 {
-	clearTimeout(this.options.delay);
-
 	if(this.options.cursor && e.target.style.cursor === 'progress')
 	{
 		e.target.style.cursor = this.data.cursor ? this.data.cursor : '';
@@ -153,7 +151,8 @@ export function mouseleave(e)
 		container.remove();
 	}
 
-	clearInterval(this.data.wait);
+	clearTimeout(this.timers.delay);
+	clearInterval(this.timers.load);
 
 	this.loaded = false;
 }

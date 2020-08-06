@@ -15,7 +15,9 @@ A demo of the script can be found [here](https://five.sh/demo/hover-preview/).
 
 or if using it directly in the browser:
 
-`<script type="text/javascript" src="./dist/hover-preview.min.js"></script>`
+```html
+<script type="text/javascript" src="./dist/hover-preview.min.js"></script>
+```
 ### Include the script
 ```javascript
 // CommonJS
@@ -50,8 +52,8 @@ var previews = [...document.querySelectorAll('.preview')].map((element, index) =
 });
 
 // functions
-element.reload(); // reloads the instance
-element.destroy(); // removes all event listeners from the instance
+preview.reload(); // reloads the instance
+preview.destroy(); // removes all event listeners from the instance
 ```
 
 ## Options
